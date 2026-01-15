@@ -4,9 +4,10 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from repositories.postgres_repository import PostgresDB
 from services.entry_service import EntryService
 from models.entry import Entry, EntryCreate
-
+import logging
 
 router = APIRouter()
+logger = logging.getLogger("router")
 
 
 async def get_entry_service() -> AsyncGenerator[EntryService, None]:
@@ -76,18 +77,16 @@ async def update_entry(entry_id: str, entry_update: dict, entry_service: EntrySe
 @router.delete("/entries/{entry_id}")
 async def delete_entry(entry_id: str, entry_service: EntryService = Depends(get_entry_service)):
     """
-    TODO: Implement this endpoint to delete a specific journal entry
-
-    Steps to implement:
-    1. Check if the entry exists first
-    2. Delete the entry using entry_service
-    3. Return appropriate response
-    4. Return 404 if entry not found
-
-    Hint: Look at how the update_entry endpoint checks for existence
+    Endpoint to delete a specific journal entry
     """
-    raise HTTPException(
-        status_code=501, detail="Not implemented - complete this endpoint!")
+
+    result = await entry_service.get_entry(entry_id)
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Entry {entry_id} not found")
+    else:
+        await entry_service.delete_entry(entry_id)
+        return {"detail": f"Entry {entry_id} has been deleted successfully"}
 
 
 @router.delete("/entries")
