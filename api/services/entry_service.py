@@ -6,6 +6,7 @@ from repositories.postgres_repository import PostgresDB
 
 logger = logging.getLogger("journal")
 
+
 class EntryService:
     def __init__(self, db: PostgresDB):
         self.db = db
@@ -39,7 +40,7 @@ class EntryService:
         else:
             logger.warning("Entry %s not found", entry_id)
         return entry
-    
+
     async def update_entry(self, entry_id: str, updated_data: Dict[str, Any]) -> Dict[str, Any]:
         """Updates an existing entry."""
         logger.info("Updating entry %s", entry_id)
@@ -47,7 +48,7 @@ class EntryService:
         if not existing_entry:
             logger.warning("Entry %s not found. Update aborted.", entry_id)
             return None
-        
+
         updated_data = {
             **existing_entry,
             **updated_data,
