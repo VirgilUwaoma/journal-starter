@@ -42,7 +42,6 @@ async def analyze_journal_entry(entry_id: str, entry_text: str) -> dict:
         service_name="bedrock-runtime",
         region_name="us-east-1"
     )
-    entry_text = "Today I struggled with async Python but finally got it working after 3 hours."
 
     prompt = f"""Analyze the sentiment of this journal entry and respond in JSON format. 
                 Return ONLY valid JSON that conforms exactly to this schema:
