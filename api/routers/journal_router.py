@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 from fastapi import APIRouter, HTTPException, Request, Depends
 from repositories.postgres_repository import PostgresDB
 from services.entry_service import EntryService
+import services.llm_service as llm
 from models.entry import Entry, EntryCreate
 import logging
 
@@ -119,5 +120,16 @@ async def analyze_entry(entry_id: str, entry_service: EntryService = Depends(get
     4. Call llm_service.analyze_journal_entry(entry_text)
     5. Return the analysis result with entry_id and created_at timestamp
     """
-    raise HTTPException(
-        status_code=501, detail="Implement this endpoint - see Learn to Cloud curriculum")
+
+    try:
+        result = await entry_service.get_entry(entry_id)
+        if not result:
+            raise HTTPException(
+                status_code=404, detail=f"Entry {entry_id} not found")
+        analysis = await llm.analyze_journal_entry(entry_id, "text")
+        return {"analysis": analysis}
+
+    except Exception as e:
+        logger.error(str(e))
+        raise HTTPException(
+            status_code=500, detail=f"Could not analyze entry")
