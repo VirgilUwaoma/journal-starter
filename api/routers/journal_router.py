@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 from fastapi import APIRouter, HTTPException, Request, Depends
 from repositories.postgres_repository import PostgresDB
 from services.entry_service import EntryService
+import services.llm_service as llm
 from models.entry import Entry, EntryCreate
 import logging
 
@@ -111,13 +112,21 @@ async def analyze_entry(entry_id: str, entry_service: EntryService = Depends(get
         "topics": ["topic1", "topic2", "topic3"],
         "created_at": "timestamp"
     }
-
-    TODO: Implement this endpoint. Steps:
-    1. Fetch the entry from database using entry_service.get_entry(entry_id)
-    2. Return 404 if entry not found
-    3. Combine work + struggle + intention into text
-    4. Call llm_service.analyze_journal_entry(entry_text)
-    5. Return the analysis result with entry_id and created_at timestamp
     """
-    raise HTTPException(
-        status_code=501, detail="Implement this endpoint - see Learn to Cloud curriculum")
+
+    try:
+        result = await entry_service.get_entry(entry_id)
+        if not result:
+            raise HTTPException(
+                status_code=404, detail=f"Entry {entry_id} not found")
+
+        entry_text = f"""work:{result.get("work")},
+                        struggle:{result.get("struggle")},
+                        intention:{result.get("intention")}"""
+        analysis = await llm.analyze_journal_entry(entry_id, entry_text.strip())
+        return analysis
+
+    except Exception as e:
+        logger.error(str(e))
+        raise HTTPException(
+            status_code=500, detail=f"Could not analyze entry")
