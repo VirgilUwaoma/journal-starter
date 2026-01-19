@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 from uuid import uuid4
@@ -50,10 +50,6 @@ class EntryCreate(BaseModel):
 
 
 class Entry(BaseModel):
-    # TODO: Add field validation rules
-    # TODO: Add custom validators
-    # TODO: Add schema versioning
-    # TODO: Add data sanitization methods
 
     id: str = Field(
         default_factory=lambda: str(uuid4()),
@@ -82,6 +78,14 @@ class Entry(BaseModel):
         default_factory=datetime.utcnow,
         description="Timestamp when the entry was last updated."
     )
+
+    @field_validator('work', 'struggle', 'intention')
+    @classmethod
+    def validate_not_empty_or_whitespace(cls, v: str) -> str:
+        """Ensure fields contain actual content, not just whitespace."""
+        if not v or not v.strip():
+            raise ValueError("Field cannot be empty or just whitespace")
+        return v
 
     model_config = {
         "json_encoders": {
