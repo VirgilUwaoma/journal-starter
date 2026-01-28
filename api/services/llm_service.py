@@ -4,7 +4,7 @@ from typing import Optional
 import dotenv
 import boto3
 import logging
-from models.entry import AnalysisResponse, LlmResponse
+from api.models.entry import AnalysisResponse, LlmResponse
 import json
 import re
 
