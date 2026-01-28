@@ -1,10 +1,10 @@
 import logging
 from typing import AsyncGenerator
 from fastapi import APIRouter, HTTPException, Request, Depends
-from repositories.postgres_repository import PostgresDB
-from services.entry_service import EntryService
-import services.llm_service as llm
-from models.entry import Entry, EntryCreate
+from api.repositories.postgres_repository import PostgresDB
+from api.services.entry_service import EntryService
+import api.services.llm_service as llm
+from api.models.entry import Entry, EntryCreate
 import logging
 
 router = APIRouter()
